@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -179,6 +180,7 @@ if uploaded_file is not None:
             st.success(f"{algorithm} Model Trained Successfully!")
 
             # Save model
+            os.makedirs("models", exist_ok=True)
             joblib.dump(model, "models/trained_model.pkl")
 
             # Make predictions on test data
