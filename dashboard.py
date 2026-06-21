@@ -109,11 +109,28 @@ if uploaded_file is not None:
         #check if dataset has at least 2 columns
         if numeric_df.shape[1] >= 2:
 
+            #select target column
+            target_column = st.selectbox(
+                "Select Target Column",
+                numeric_df.columns
+            )
+
+            #select feature columns
+            feature_columns = st.multiselect(
+                "Select Feature Columns",
+                [col for col in numeric_df.columns if col != target_column],
+                default=[col for col in numeric_df.columns if col != target_column]
+            )
+
+            if len(feature_columns) == 0:
+                st.warning("Please select at least one feature column.")
+                st.stop()
+
             #feature column
-            x = numeric_df.iloc[:, :-1]
+            x = numeric_df[feature_columns]
 
             #target column
-            y = numeric_df.iloc[:, -1]
+            y = numeric_df[target_column]
 
             st.write("Feature (x):")
             st.write(x)
@@ -183,6 +200,15 @@ if uploaded_file is not None:
             os.makedirs("models", exist_ok=True)
             joblib.dump(model, "models/trained_model.pkl")
 
+            # Download trained model
+            with open("models/trained_model.pkl", "rb") as file:
+                st.download_button(
+                    label="Download Trained Model",
+                    data=file,
+                    file_name="trained_model.pkl",
+                    mime="application/octet-stream"
+                )
+
             # Make predictions on test data
             predictions = model.predict(x_test)
 
@@ -216,6 +242,7 @@ if uploaded_file is not None:
 
             #Predict button
             if st.button("Predict"):
+                
                 #create new input data
                 new_data = [inputs]
 
@@ -226,8 +253,23 @@ if uploaded_file is not None:
                 result = loaded_model.predict(new_data)
 
                 #Display reslut
-                st.success(f"Predicted Value: {result[0]:.2f}")
+                st.success(f"Predicted {target_column}: {result[0]:.2f}")
                 st.balloons()
+
+                #create prediction dataframe and provide download option-
+                prediction_df = pd.DataFrame({
+                    "Target": [target_column],
+                    "Predicted Value": [result[0]]
+                })
+
+                csv = prediction_df.to_csv(index=False)
+
+                st.download_button(
+                    label="Download Prediction Result",
+                    data=csv,
+                    file_name="prediction_result.csv",
+                    mime="text/csv"
+                )
 
         else:
             st.warning("Dataset must contain at least 2 numerical columns for machine learning.")
