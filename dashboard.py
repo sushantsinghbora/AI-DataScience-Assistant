@@ -10,6 +10,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
 
 st.set_page_config(
     page_title="AI Data Science Assistant",
@@ -143,52 +148,108 @@ if uploaded_file is not None:
                 x, y, test_size=0.2, random_state=42
             )
 
-            models = {
-                "Linear Regression": LinearRegression(),
-                "Decision Tree Regressor": DecisionTreeRegressor(random_state=42),
-                "Random Forest Regressor": RandomForestRegressor(random_state=42)
-            }
-
-            results = []
-
-            for name, model_obj in models.items():
-                model_obj.fit(x_train, y_train)
-                predictions = model_obj.predict(x_test)
-                mse = mean_squared_error(y_test, predictions)
-                r2 = r2_score(y_test, predictions)
-
-                results.append({
-                    "Model": name,
-                    "MSE": mse,
-                    "R2 Score": r2
-                })
-
-            results_df = pd.DataFrame(results)
-
-            st.write("Model Comparison")
-            st.write(results_df)
-
-            best_model_name = results_df.loc[results_df["MSE"].idxmin(), "Model"]
-
-            st.success(f"Best Model: {best_model_name}")
-
-            #select model
-            algorithm = st.selectbox(
-                "Choose Machine Learning Algorithm",
-                [
-                    "Linear Regression",
-                    "Decision Tree Regressor",
-                    "Random Forest Regressor"
-                ]
+            # choose problem type
+            problem_type = st.selectbox(
+                "Select Problem Type",
+                ["Regression", "Classification"]
             )
+
+            # model comparison based on problem type
+            if problem_type == "Regression":
+                models = {
+                    "Linear Regression": LinearRegression(),
+                    "Decision Tree Regressor": DecisionTreeRegressor(random_state=42),
+                    "Random Forest Regressor": RandomForestRegressor(random_state=42)
+                }
+
+                results = []
+
+                for name, model_obj in models.items():
+                    model_obj.fit(x_train, y_train)
+                    predictions = model_obj.predict(x_test)
+                    mse = mean_squared_error(y_test, predictions)
+                    r2 = r2_score(y_test, predictions)
+
+                    results.append({
+                        "Model": name,
+                        "MSE": mse,
+                        "R2 Score": r2
+                    })
+
+                results_df = pd.DataFrame(results)
+
+                st.write("Model Comparison")
+                st.write(results_df)
+
+                best_model_name = results_df.loc[results_df["MSE"].idxmin(), "Model"]
+                st.success(f"Best Model: {best_model_name}")
+
+            else:
+                models = {
+                    "Logistic Regression": LogisticRegression(max_iter=1000),
+                    "Decision Tree Classifier": DecisionTreeClassifier(random_state=42),
+                    "Random Forest Classifier": RandomForestClassifier(random_state=42)
+                }
+
+                results = []
+
+                for name, model_obj in models.items():
+                    model_obj.fit(x_train, y_train)
+                    predictions = model_obj.predict(x_test)
+                    acc = accuracy_score(y_test, predictions)
+
+                    results.append({
+                        "Model": name,
+                        "Accuracy": acc
+                    })
+
+                results_df = pd.DataFrame(results)
+
+                st.write("Model Comparison")
+                st.write(results_df)
+
+                best_model_name = results_df.loc[results_df["Accuracy"].idxmax(), "Model"]
+                st.success(f"Best Model: {best_model_name}")
+
+
+            # choose algorithm based on problem type
+            if problem_type == "Regression":
+                algorithm = st.selectbox(
+                    "Choose Machine Learning Algorithm",
+                    [
+                        "Linear Regression",
+                        "Decision Tree Regressor",
+                        "Random Forest Regressor"
+                    ]
+                )
+            else:
+                algorithm = st.selectbox(
+                    "Choose Machine Learning Algorithm",
+                    [
+                        "Logistic Regression",
+                        "Decision Tree Classifier",
+                        "Random Forest Classifier"
+                    ]
+                )
 
             #Create model based on selction
             if algorithm == "Linear Regression":
                 model = LinearRegression()
+
             elif algorithm == "Decision Tree Regressor":
                 model = DecisionTreeRegressor(random_state=42)
-            else:
+
+            elif algorithm == "Random Forest Regressor":
                 model = RandomForestRegressor(random_state=42)
+
+            elif algorithm == "Logistic Regression":
+                model = LogisticRegression(max_iter=1000)
+
+            elif algorithm == "Decision Tree Classifier":
+                model = DecisionTreeClassifier(random_state=42)
+
+            else:
+                model = RandomForestClassifier(random_state=42)
 
             # Train model with loading spinner
             with st.spinner("Training AI Model..."):
@@ -212,26 +273,50 @@ if uploaded_file is not None:
             # Make predictions on test data
             predictions = model.predict(x_test)
 
-            # Calculate and display mean squared error
-            mse = mean_squared_error(y_test, predictions)
+            if problem_type == "Regression":
+                mse = mean_squared_error(y_test, predictions)
+                r2 = r2_score(y_test, predictions)
 
-            st.write("Mean Squared Error:")
-            st.write(mse)
+                st.write("Mean Squared Error:")
+                st.write(mse)
 
-            r2 = r2_score(y_test, predictions)
+                st.write("R² Score:")
+                st.write(r2)
 
-            st.write("R² Score:")
-            st.write(r2)
+                st.write("Actual vs Predicted Values")
 
-            # Accuracy Visualization
-            st.write("Actual vs Predicted Values")
+                fig, ax = plt.subplots()
+                ax.scatter(y_test, predictions, alpha=0.5)
+                ax.set_xlabel("Actual Values")
+                ax.set_ylabel("Predicted Values")
+                ax.set_title("Actual vs Predicted Values")
+                st.pyplot(fig)
 
-            fig, ax = plt.subplots()
-            ax.scatter(y_test, predictions, alpha=0.5)
-            ax.set_xlabel("Actual Values")
-            ax.set_ylabel("Predicted Values")
-            ax.set_title("Actual vs Predicted Values")
-            st.pyplot(fig)
+            else:
+                acc = accuracy_score(y_test, predictions)
+
+                st.write("Accuracy:")
+                st.write(acc)
+
+                st.write("Confusion Matrix")
+
+                cm = confusion_matrix(y_test, predictions)
+
+                fig, ax = plt.subplots(figsize=(6, 4))
+
+                sns.heatmap(
+                    cm,
+                    annot=True,
+                    fmt="d",
+                    cmap="Blues",
+                    ax=ax
+                )
+
+                ax.set_xlabel("Predicted Values")
+                ax.set_ylabel("Actual Values")
+                ax.set_title("Confusion Matrix")
+
+                st.pyplot(fig)
 
             #user Input Prediction System
             inputs = []
@@ -253,7 +338,11 @@ if uploaded_file is not None:
                 result = loaded_model.predict(new_data)
 
                 #Display reslut
-                st.success(f"Predicted {target_column}: {result[0]:.2f}")
+                if problem_type == "Regression":
+                    st.success(f"Predicted {target_column}: {result[0]:.2f}")
+                else:
+                    st.success(f"Predicted {target_column}: {result[0]}")
+
                 st.balloons()
 
                 #create prediction dataframe and provide download option-
