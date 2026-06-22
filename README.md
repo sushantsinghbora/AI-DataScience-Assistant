@@ -115,12 +115,21 @@ Deployed on **Microsoft Azure App Service**
 ---
 
 ## 📷 Screenshots
-Add screenshots of:
-- Home page / dashboard
-- Data Analysis tab
-- Regression model output
-- Classification confusion matrix
-- Azure deployed app
+
+### Home / Data Analysis
+![Home]("<img width="1920" height="1080" alt="home" src="https://github.com/user-attachments/assets/2a510449-9c17-4f19-bdd5-ed25f80662cc" />")
+
+### Regression Model Output
+![Regression]("<img width="1920" height="1080" alt="regression_output" src="https://github.com/user-attachments/assets/b5b30238-3a5b-485d-8dc4-7030dd115505" />
+")
+
+### Classification Model Output
+![Classification]("<img width="1920" height="1080" alt="classification_output" src="https://github.com/user-attachments/assets/5b71cd22-7aa9-4a7c-bc4c-2701306bc82d" />
+")
+
+### Visualization Tab
+![Visualization]("<img width="1920" height="1080" alt="visualization" src="https://github.com/user-attachments/assets/cf2173fc-9b4f-4e07-8aa8-ad44f61bcf7a" />
+")
 
 ---
 
@@ -130,3 +139,13 @@ Add screenshots of:
 ```bash
 git clone <your-github-repo-link>
 cd AI-DataScience-Assistant
+
+---
+```
+
+## 👨‍💻 Author
+
+**Sushant Bora**  
+B.Tech CSE Student passionate about **Data Science, Artificial Intelligence, Machine Learning, and Cloud Computing (Azure)**.  
+Built this project to simplify data analysis, machine learning, and predictive modeling through an interactive web-based assistant.
+
